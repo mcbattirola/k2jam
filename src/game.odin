@@ -30,6 +30,8 @@ Game :: struct {
 	money:              f64,
 	money_token_ratio:  f64,
 	book_pos:           u64,
+	market_scroll:      f32,
+	market_scroll_max:  f32,
 	upgrades_available: [dynamic; 20]Upgrade,
 }
 
@@ -190,6 +192,12 @@ game_update :: proc() {
 	market_btn_width: f32 = 256
 	x, y = window_inside()
 
+	// market window scroll
+	market_scroll_area := scroll_begin(&game.market_scroll, game.market_scroll_max)
+	y -= game.market_scroll
+	market_content_y := y
+
+	// upgrade buttons
 	for i in 0 ..< len(game.upgrades_available) {
 		u := &game.upgrades_available[i]
 		btn_label := fmt.tprintf("$%d - %s", u.cost, upgrade_name(u.kind))
@@ -207,6 +215,7 @@ game_update :: proc() {
 
 		y = row()
 	}
+	game.market_scroll_max = scroll_end(&game.market_scroll, market_scroll_area, y - market_content_y)
 
 	x, y = window_below_ex(book_window)
 

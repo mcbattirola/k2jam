@@ -8,6 +8,8 @@ WINDOW_HEADER_SIZE :: FONT_SIZE_MD + (TILEBAR_PADDING.y * 2)
 // keeps the last element so we can call row() withtout params
 last_el: k2.Rect
 current_window: k2.Rect
+current_clip: k2.Rect
+current_clip_enabled: bool
 
 window :: proc(title: string, rect: k2.Rect) {
 	r := rect
@@ -29,6 +31,17 @@ window :: proc(title: string, rect: k2.Rect) {
 
 window_inside :: proc() -> (f32, f32) {
 	return current_window.x + WINDOW_X_PADDING, row()
+}
+
+// size of the current window's content
+window_content_rect :: proc() -> k2.Rect {
+	_, y := window_inside()
+	return {
+		current_window.x + WINDOW_X_PADDING,
+		y,
+		current_window.w - (WINDOW_X_PADDING * 2),
+		current_window.y + current_window.h - y - ROW_SPACE,
+	}
 }
 
 // returns x and y at the side of the last window
@@ -83,7 +96,7 @@ btn :: proc(
 
 	// state
 	mouse_pos := k2.get_mouse_position()
-	hovered := k2.point_in_rect(mouse_pos, rec)
+	hovered := k2.point_in_rect(mouse_pos, rec) && clip_has_point(mouse_pos)
 	pressed := hovered && k2.mouse_button_is_held(.Left) && !disabled
 	clicked := hovered && !disabled && k2.mouse_button_went_down(.Left)
 
@@ -138,6 +151,79 @@ label :: proc(
 
 row :: proc() -> f32 {
 	return last_el.y + last_el.h + ROW_SPACE
+}
+
+scroll_begin :: proc(scroll: ^f32, max_scroll: f32) -> k2.Rect {
+	area := window_content_rect()
+
+	mouse_pos := k2.get_mouse_position()
+	wheel := k2.get_mouse_wheel_delta()
+	if wheel != 0 && k2.point_in_rect(mouse_pos, area) {
+		scroll^ -= wheel * 32
+	}
+	if scroll^ < 0 {
+		scroll^ = 0
+	}
+	if scroll^ > max_scroll {
+		scroll^ = max_scroll
+	}
+
+	last_el.y -= scroll^
+	k2.set_scissor_rect(area)
+	current_clip = area
+	current_clip_enabled = true
+
+	return area
+}
+
+scroll_end :: proc(scroll: ^f32, area: k2.Rect, content_height: f32) -> f32 {
+	max_scroll := content_height - area.h
+	if max_scroll < 0 {
+		max_scroll = 0
+	}
+	if scroll^ > max_scroll {
+		scroll^ = max_scroll
+	}
+
+	k2.set_scissor_rect(nil)
+	current_clip_enabled = false
+
+	if max_scroll > 0 {
+		draw_scrollbar(area, scroll^, max_scroll)
+	}
+
+	return max_scroll
+}
+
+clip_has_point :: proc(pos: k2.Vec2) -> bool {
+	if !current_clip_enabled {
+		return true
+	}
+	return k2.point_in_rect(pos, current_clip)
+}
+
+draw_scrollbar :: proc(area: k2.Rect, scroll: f32, max_scroll: f32) {
+	track := k2.Rect{area.x + area.w - 12, area.y, 12, area.h}
+	k2.draw_rect(track, COLOR_SURFACE)
+	borders(track)
+
+	handle_h := area.h * area.h / (area.h + max_scroll)
+	if handle_h < 20 {
+		handle_h = 20
+	}
+	if handle_h > area.h {
+		handle_h = area.h
+	}
+
+	handle_y := area.y
+	available_h := area.h - handle_h
+	if available_h > 0 {
+		handle_y += (scroll / max_scroll) * available_h
+	}
+
+	handle := k2.Rect{track.x + 2, handle_y + 2, track.w - 4, handle_h - 4}
+	k2.draw_rect(handle, COLOR_BTN_BG)
+	borders(handle)
 }
 
 
