@@ -1,10 +1,31 @@
-# Odin + Karl2D + Hot Reload
+# K2 Jam - It Demands Data
 
-This is a small, kinda hacked-together hot reload setup for Odin + [Karl2D](https://github.com/karl-zylinski/karl2d).
+An incremental game where you type to feed an AI tokens.
 
-Right now it only supports Windows, but the code is mostly portable. You’d just need to write a `build-hot-reload.sh` for macOS/Linux.
+As you get money, you can buy stuff like auto-complete, internet crawlers,
+and eventually startups to feed doomscrolllers data into the machine.
 
-Tested in `odin version dev-2026-04-nightly:a896fb2`
+
+## Gameplay
+
+Exactly like Cookie Clicker, except instead of clicking a cookie, you see
+the words of a book. You type to feed the machine, but eventually you
+automate everything.
+
+
+## TODO
+
+- [ ] UI system (windows 98 look)
+- [ ] Build the UI
+- [ ] Book writing system
+- [ ] Token system
+- [ ] Shop
+
+
+_____
+
+
+Hot reload template readme below:
 
 ## How it works
 

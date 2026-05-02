@@ -129,7 +129,7 @@ main :: proc() {
 
 	game_api_version += 1
 
-	k2state := k2.init(800, 600, "Karl2D hot reload")
+	k2state := k2.init(800, 600, "Karl2D hot reload", {})
 
 	game_api.game_init(k2state)
 
