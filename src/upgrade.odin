@@ -50,6 +50,9 @@ upgrade_name :: proc(kind: UpgradeKind) -> string {
 }
 
 upgrade_buy :: proc(u: ^Upgrade) {
+	if game.money < f64(u.cost) {return}
+	game.money -= f64(u.cost)
+
 	u.bought += 1
 
 	switch s in u.enhancement {
