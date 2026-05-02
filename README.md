@@ -15,11 +15,12 @@ automate everything.
 
 ## TODO
 
-- [ ] UI system (windows 98 look)
-- [ ] Build the UI
+- [x] UI system (windows 98 look)
+- [x] Build the UI
+- [x] Token system
+- [x] Shop
 - [ ] Book writing system
-- [ ] Token system
-- [ ] Shop
+- [ ] Enable new upgrades as we go
 
 
 _____
