@@ -213,10 +213,10 @@ game_update :: proc() {
 	x, y = window_inside()
 	tokens_txt := display_txt_f64(game.tokens_fed)
 	if game.tokens_per_second > 0 {
-		tokens_txt = fmt.aprintf("%s (+%.2f/s)", tokens_txt, game.tokens_per_second)
+		tokens_txt = fmt.aprintf("Tokens Fed: %s (+%.2f/s)", tokens_txt, game.tokens_per_second)
 
 	}
-	label(tokens_txt, {x, y}, color = COLOR_BLUE, font_size = FONT_SIZE_LG)
+	label(tokens_txt, {x, y}, font_size = FONT_SIZE_LG)
 	y = row()
 	label(
 		fmt.aprintf("Money: %.0f", math.floor(game.money)),
