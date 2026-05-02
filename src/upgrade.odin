@@ -49,6 +49,22 @@ upgrade_name :: proc(kind: UpgradeKind) -> string {
 	return ""
 }
 
+upgrade_desc :: proc(u: Upgrade) -> string {
+	txt: string
+	switch s in u.enhancement {
+	case UpgradeEnhancementTPS:
+		txt = fmt.aprintf("+ %.1f TPS", s.amount)
+	case UpgradeEnhancementMoneyRatio:
+		txt = fmt.aprintf("+ %.2f$ per token", s.amount)
+	}
+
+	if u.one_time_buy {
+		txt = fmt.aprintf("%s. One time buy.", txt)
+	}
+
+	return txt
+}
+
 upgrade_buy :: proc(u: ^Upgrade) {
 	if u.bought > 0 && u.one_time_buy {return}
 

@@ -185,9 +185,11 @@ game_update :: proc() {
 
 	book_window := current_window
 
+	MARKET_WINDOW_HEIGHT: f32 = BOOK_WINDOW_HEIGHT - 32
+
 	window(
 		"Market",
-		{x, y, GAME_WIDTH - BOOK_WINDOW_WIDTH - (WINDOWS_SPACING * 3), BOOK_WINDOW_HEIGHT},
+		{x, y, GAME_WIDTH - BOOK_WINDOW_WIDTH - (WINDOWS_SPACING * 3), MARKET_WINDOW_HEIGHT},
 	)
 	market_btn_width: f32 = 256
 	x, y = window_inside()
@@ -198,6 +200,9 @@ game_update :: proc() {
 	market_content_y := y
 
 	// upgrade buttons
+	hovered_upgrade: Upgrade
+	any_hovered_upgrade: bool
+
 	for i in 0 ..< len(game.upgrades_available) {
 		u := &game.upgrades_available[i]
 		btn_label := fmt.tprintf("$%d - %s", u.cost, upgrade_name(u.kind))
@@ -205,6 +210,11 @@ game_update :: proc() {
 		if btn(btn_label, {x, y}, width = market_btn_width, disabled = disabled) {
 			upgrade_buy(u)
 		}
+		if hovered(last_el) {
+			any_hovered_upgrade = true
+			hovered_upgrade = u^
+		}
+
 		if u.bought > 0 && !u.one_time_buy {
 			button := last_el
 			qty_x := button.x + button.w + ROW_SPACE
@@ -215,7 +225,16 @@ game_update :: proc() {
 
 		y = row()
 	}
-	game.market_scroll_max = scroll_end(&game.market_scroll, market_scroll_area, y - market_content_y)
+	game.market_scroll_max = scroll_end(
+		&game.market_scroll,
+		market_scroll_area,
+		y - market_content_y,
+	)
+
+	x, y = window_below()
+	if any_hovered_upgrade {
+		label(fmt.aprintf("INFO: %s", upgrade_desc(hovered_upgrade)), {x, y})
+	}
 
 	x, y = window_below_ex(book_window)
 

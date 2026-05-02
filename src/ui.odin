@@ -96,7 +96,7 @@ btn :: proc(
 
 	// state
 	mouse_pos := k2.get_mouse_position()
-	hovered := k2.point_in_rect(mouse_pos, rec) && clip_has_point(mouse_pos)
+	hovered := hovered(rec)
 	pressed := hovered && k2.mouse_button_is_held(.Left) && !disabled
 	clicked := hovered && !disabled && k2.mouse_button_went_down(.Left)
 
@@ -134,6 +134,12 @@ btn :: proc(
 	return clicked
 }
 
+hovered :: proc(rec: k2.Rect) -> bool {
+	mouse_pos := k2.get_mouse_position()
+	return k2.point_in_rect(mouse_pos, rec) && clip_has_point(mouse_pos)
+}
+
+
 label :: proc(
 	txt: string,
 	pos: k2.Vec2,
@@ -147,6 +153,12 @@ label :: proc(
 	size := k2.measure_text(txt, font_size, font)
 	last_el = {pos.x, pos.y, size.x, size.y}
 	k2.draw_text(txt, pos, font_size, color, font)
+}
+
+divider_h :: proc(x: f32, y: f32, w: f32) {
+	k2.draw_line(k2.Vec2{x, y}, k2.Vec2{x + w, y}, 1, COLOR_DIVIDER_DARK)
+	k2.draw_line(k2.Vec2{x, y + 1}, k2.Vec2{x + w, y + 1}, 1, COLOR_DIVIDER_LIGHT)
+	last_el = {x, y, 2, 2}
 }
 
 row :: proc() -> f32 {
