@@ -30,6 +30,7 @@ Game :: struct {
 	money:              f64,
 	money_token_ratio:  f64,
 	book_pos:           u64,
+	book_chars_typed:   i32,
 	market_scroll:      f32,
 	market_scroll_max:  f32,
 	upgrades_available: [dynamic; 20]Upgrade,

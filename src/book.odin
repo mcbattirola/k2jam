@@ -1,5 +1,6 @@
 package game
 
+import "core:fmt"
 import k2 "karl2d"
 
 BOOK_LINE_HEIGHT :: FONT_SIZE_MD
@@ -30,6 +31,14 @@ book_update :: proc() {
 	if highlighted_key != .None && k2.key_went_down(highlighted_key) {
 		game.book_pos += 1
 		game.book_pos, _ = book_next_typable_index(game.book_pos)
+		game.book_chars_typed += 1
+
+		// word ended
+		if highlighted_char == ' ' {
+			grant := f64(game.book_chars_typed) * 0.75
+			game.tokens_fed += grant
+			game.book_chars_typed = 0
+		}
 	}
 }
 
