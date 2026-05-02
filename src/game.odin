@@ -31,6 +31,7 @@ Game :: struct {
 	money_token_ratio:  f64,
 	book_pos:           u64,
 	book_chars_typed:   i32,
+	book_scroll:        f32,
 	market_scroll:      f32,
 	market_scroll_max:  f32,
 	upgrades_available: [dynamic; 20]Upgrade,
@@ -42,11 +43,7 @@ game: ^Game
 GAME_WIDTH :: 800
 GAME_HEIGHT :: 600
 
-MONEY_TOKEN_RATIO_INIT :: .1
-
-// upgrades
-UPGRADE_TRAINEE_COST :: 5
-UPGRADE_TRAINEE_TPS :: .1
+MONEY_TOKEN_RATIO_INIT :: 1
 
 @(export)
 game_init :: proc(k2state: ^k2.State) {
