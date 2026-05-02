@@ -193,7 +193,8 @@ game_update :: proc() {
 	for i in 0 ..< len(game.upgrades_available) {
 		u := &game.upgrades_available[i]
 		btn_label := fmt.tprintf("$%d - %s", u.cost, upgrade_name(u.kind))
-		if btn(btn_label, {x, y}, width = market_btn_width, disabled = game.money < f64(u.cost)) {
+		disabled := game.money < f64(u.cost) || (u.bought > 0 && u.one_time_buy)
+		if btn(btn_label, {x, y}, width = market_btn_width, disabled = disabled) {
 			upgrade_buy(u)
 		}
 		if u.bought > 0 && !u.one_time_buy {
