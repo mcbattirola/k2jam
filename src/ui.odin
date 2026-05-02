@@ -1,5 +1,6 @@
 package game
 
+import "core:fmt"
 import k2 "karl2d"
 
 WINDOW_HEADER_SIZE :: FONT_SIZE_MD + (TILEBAR_PADDING.y * 2)
@@ -93,6 +94,18 @@ window_below :: proc() -> (f32, f32) {
 
 window_below_ex :: proc(window: k2.Rect) -> (f32, f32) {
 	return window.x, window.y + window.h + ROW_SPACE
+}
+
+window_full_width :: proc() -> f32 {
+	return window_full_width_ex(current_window)
+}
+
+window_full_width_ex :: proc(window: k2.Rect) -> f32 {
+	return window.w - (WINDOWS_SPACING * 2)
+}
+
+window_full_height_ex :: proc(y: f32) -> f32 {
+	return GAME_HEIGHT - y - WINDOW_HEADER_SIZE - WINDOWS_SPACING
 }
 
 

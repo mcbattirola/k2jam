@@ -159,6 +159,7 @@ game_update :: proc() {
 	y: f32 = 0
 	x: f32 = 0
 	window("It Demands Data", {x, y, GAME_WIDTH, GAME_HEIGHT})
+	main_window := current_window
 	x, y = window_inside()
 	window("Book", {x, y, BOOK_WINDOW_WIDTH, BOOK_WINDOW_HEIGHT})
 	x, y = window_side()
@@ -167,12 +168,7 @@ game_update :: proc() {
 
 	window(
 		"Market",
-		{
-			x,
-			y,
-			GAME_WIDTH - BOOK_WINDOW_WIDTH - (WINDOWS_SPACING * 3),
-			GAME_HEIGHT - BOOK_WINDOW_HEIGHT,
-		},
+		{x, y, GAME_WIDTH - BOOK_WINDOW_WIDTH - (WINDOWS_SPACING * 3), BOOK_WINDOW_HEIGHT},
 	)
 	market_btn_width: f32 = 256
 	x, y = window_inside()
@@ -186,6 +182,9 @@ game_update :: proc() {
 	) {fmt.println("clicked")}
 
 	x, y = window_below_ex(book_window)
+
+	window("Control Panel", {x, y, window_full_width_ex(main_window), window_full_height_ex(y)})
+	x, y = window_inside()
 	if btn("$100 - Buy Internet Crawler", {x, y}) {fmt.println("clicked")}
 
 	k2.present()
