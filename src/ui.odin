@@ -27,6 +27,35 @@ window :: proc(title: string, rect: k2.Rect) {
 	k2.draw_text(title, text_pos, FONT_SIZE_MD, COLOR_WHITE, game.font_bold)
 }
 
+window_inside :: proc() -> (f32, f32) {
+	return current_window.x + WINDOW_X_PADDING, row()
+}
+
+// returns x and y at the side of the last window
+window_side :: proc() -> (f32, f32) {
+	return current_window.x + current_window.w + WINDOWS_SPACING, current_window.y
+}
+
+window_below :: proc() -> (f32, f32) {
+	return window_below_ex(current_window)
+}
+
+window_below_ex :: proc(window: k2.Rect) -> (f32, f32) {
+	return window.x, window.y + window.h + ROW_SPACE
+}
+
+window_full_width :: proc() -> f32 {
+	return window_full_width_ex(current_window)
+}
+
+window_full_width_ex :: proc(window: k2.Rect) -> f32 {
+	return window.w - (WINDOWS_SPACING * 2)
+}
+
+window_full_height_ex :: proc(y: f32) -> f32 {
+	return GAME_HEIGHT - y - WINDOW_HEADER_SIZE - WINDOWS_SPACING
+}
+
 
 btn :: proc(txt: string, pos: k2.Vec2, font_size: f32 = FONT_SIZE_MD, width: f32 = 0) -> bool {
 	txt_size := k2.measure_text(txt, font_size, game.font_handle)
@@ -75,37 +104,23 @@ btn :: proc(txt: string, pos: k2.Vec2, font_size: f32 = FONT_SIZE_MD, width: f32
 	return clicked
 }
 
+label :: proc(
+	txt: string,
+	pos: k2.Vec2,
+	font_size: f32 = FONT_SIZE_MD,
+	bold: bool = false,
+	color: k2.Color = COLOR_BLACK,
+) {
+	font := game.font_handle
+	if bold {font = game.font_bold}
+
+	size := k2.measure_text(txt, font_size, font)
+	last_el = {pos.x, pos.y, size.x, size.y}
+	k2.draw_text(txt, pos, font_size, color, font)
+}
+
 row :: proc() -> f32 {
 	return last_el.y + last_el.h + ROW_SPACE
-}
-
-window_inside :: proc() -> (f32, f32) {
-	return current_window.x + WINDOW_X_PADDING, row()
-}
-
-// returns x and y at the side of the last window
-window_side :: proc() -> (f32, f32) {
-	return current_window.x + current_window.w + WINDOWS_SPACING, current_window.y
-}
-
-window_below :: proc() -> (f32, f32) {
-	return window_below_ex(current_window)
-}
-
-window_below_ex :: proc(window: k2.Rect) -> (f32, f32) {
-	return window.x, window.y + window.h + ROW_SPACE
-}
-
-window_full_width :: proc() -> f32 {
-	return window_full_width_ex(current_window)
-}
-
-window_full_width_ex :: proc(window: k2.Rect) -> f32 {
-	return window.w - (WINDOWS_SPACING * 2)
-}
-
-window_full_height_ex :: proc(y: f32) -> f32 {
-	return GAME_HEIGHT - y - WINDOW_HEADER_SIZE - WINDOWS_SPACING
 }
 
 

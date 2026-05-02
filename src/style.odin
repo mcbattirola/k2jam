@@ -12,8 +12,12 @@ COLOR_BG := parse_hex_color("222222")
 COLOR_SURFACE := parse_hex_color("c0c0c0")
 COLOR_WHITE := parse_hex_color("ffffff")
 COLOR_BLACK := parse_hex_color("000000")
+COLOR_RED := parse_hex_color("800000") // used in alerts
+COLOR_GREEN := parse_hex_color("008000") // terminal-style highlight
+COLOR_BLUE := parse_hex_color("000080")
 
-COLOR_TITLEBAR_ACTIVE := parse_hex_color("000080")
+
+COLOR_TITLEBAR_ACTIVE := COLOR_BLUE
 COLOR_TITLEBAR_INACTIVE := parse_hex_color("808080")
 
 COLOR_BTN_BORDER_TOP := COLOR_WHITE // highlight

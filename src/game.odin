@@ -185,7 +185,13 @@ game_update :: proc() {
 
 	window("Control Panel", {x, y, window_full_width_ex(main_window), window_full_height_ex(y)})
 	x, y = window_inside()
-	if btn("$100 - Buy Internet Crawler", {x, y}) {fmt.println("clicked")}
+	label("Tokens Fed: 10,000", {x, y})
+	y = row()
+	label("Money: 1,00", {x, y}, color = COLOR_GREEN)
+	y = row()
+	label("Money: 1,00", {x, y}, color = COLOR_RED)
+	y = row()
+	label("Money: 1,00", {x, y}, color = COLOR_BLUE)
 
 	k2.present()
 }
