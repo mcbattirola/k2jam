@@ -57,7 +57,13 @@ window_full_height_ex :: proc(y: f32) -> f32 {
 }
 
 
-btn :: proc(txt: string, pos: k2.Vec2, font_size: f32 = FONT_SIZE_MD, width: f32 = 0) -> bool {
+btn :: proc(
+	txt: string,
+	pos: k2.Vec2,
+	font_size: f32 = FONT_SIZE_MD,
+	width: f32 = 0,
+	disabled: bool = false,
+) -> bool {
 	txt_size := k2.measure_text(txt, font_size, game.font_handle)
 
 	padding := BUTTON_PADDING
@@ -78,8 +84,8 @@ btn :: proc(txt: string, pos: k2.Vec2, font_size: f32 = FONT_SIZE_MD, width: f32
 	// state
 	mouse_pos := k2.get_mouse_position()
 	hovered := k2.point_in_rect(mouse_pos, rec)
-	pressed := hovered && k2.mouse_button_is_held(.Left)
-	clicked := hovered && k2.mouse_button_went_down(.Left)
+	pressed := hovered && k2.mouse_button_is_held(.Left) && !disabled
+	clicked := hovered && !disabled && k2.mouse_button_went_down(.Left)
 
 	text_offset := k2.Vec2{0, 0}
 
@@ -97,7 +103,18 @@ btn :: proc(txt: string, pos: k2.Vec2, font_size: f32 = FONT_SIZE_MD, width: f32
 
 	// text
 	text_pos := k2.Vec2{x + padding.x + text_offset.x, y + padding.y + text_offset.y}
-	k2.draw_text(txt, text_pos, font_size, COLOR_BLACK, game.font_handle)
+	if disabled {
+		k2.draw_text(
+			txt,
+			text_pos + k2.Vec2{1, 1},
+			font_size,
+			COLOR_DISABLED_SHADOW,
+			game.font_handle,
+		)
+		k2.draw_text(txt, text_pos, font_size, COLOR_DISABLED_TEXT, game.font_handle)
+	} else {
+		k2.draw_text(txt, text_pos, font_size, COLOR_BLACK, game.font_handle)
+	}
 
 	last_el = rec
 

@@ -2,27 +2,35 @@ package game
 
 import "base:runtime"
 import "core:fmt"
+import "core:math"
 import "core:math/linalg"
 import "core:os"
 import k2 "karl2d"
 import vmem `core:mem/virtual`
 
+BOOK :: #load("../assets/book.txt")
+
 Game :: struct {
-	arena:           vmem.Arena,
-	arena_buffer:    []u8,
-	allocator:       runtime.Allocator,
-	frame_arena:     vmem.Arena,
-	frame_allocator: runtime.Allocator,
-	terminate:       bool,
+	arena:              vmem.Arena,
+	arena_buffer:       []u8,
+	allocator:          runtime.Allocator,
+	frame_arena:        vmem.Arena,
+	frame_allocator:    runtime.Allocator,
+	terminate:          bool,
 	// audio
-	audio_enabled:   bool,
-	audio_buffer:    k2.Audio_Buffer,
-	audio:           k2.Sound,
+	audio_enabled:      bool,
+	audio_buffer:       k2.Audio_Buffer,
+	audio:              k2.Sound,
 	// text
-	font_handle:     k2.Font,
-	font_bold:       k2.Font,
+	font_handle:        k2.Font,
+	font_bold:          k2.Font,
 	// gameplay stuff
-	tokens_fed:      f32,
+	tokens_fed:         f64,
+	tokens_per_second:  f64,
+	money:              f64,
+	money_token_ratio:  f64,
+	book_pos:           u64,
+	upgrades_available: [dynamic; 20]Upgrade,
 }
 
 // global game instance
@@ -30,6 +38,12 @@ game: ^Game
 
 GAME_WIDTH :: 800
 GAME_HEIGHT :: 600
+
+MONEY_TOKEN_RATIO_INIT :: .1
+
+// upgrades
+UPGRADE_TRAINEE_COST :: 5
+UPGRADE_TRAINEE_TPS :: .1
 
 @(export)
 game_init :: proc(k2state: ^k2.State) {
@@ -74,6 +88,11 @@ game_init :: proc(k2state: ^k2.State) {
 	// load fonts
 	game.font_handle = k2.load_font_from_bytes(#load("../assets/MS-Sans-Serif.ttf"))
 	game.font_bold = k2.load_font_from_bytes(#load("../assets/MS-Sans-Serif-Bold.ttf"))
+
+	// initial gameplay state
+	game.money = 10
+	game.money_token_ratio = MONEY_TOKEN_RATIO_INIT
+	append(&game.upgrades_available, ..INIT_ENABLED_UPGRADES[:])
 }
 
 @(export)
@@ -136,11 +155,9 @@ game_update :: proc() {
 		return
 	}
 
-	move_direction: [2]f32
+	dt := k2.get_frame_time()
 
-	if k2.key_is_held(.Up) || k2.gamepad_button_is_held(0, .Left_Face_Up) {
-		move_direction.y = -1
-	}
+	tokens_update(dt)
 
 	// audio example
 	// if game.enemy_pos.x < 0 {
@@ -173,27 +190,49 @@ game_update :: proc() {
 	market_btn_width: f32 = 256
 	x, y = window_inside()
 
-	if btn("$10 - Auto Complete", {x, y}, width = market_btn_width) {fmt.println("clicked")}
-	y = row()
-	if btn(
-		"$100 - Buy Internet Crawler",
-		{x, y},
-		width = market_btn_width,
-	) {fmt.println("clicked")}
+	for i in 0 ..< len(game.upgrades_available) {
+		u := &game.upgrades_available[i]
+		label := fmt.tprintf("$%d - %s", u.cost, upgrade_name(u.kind))
+		if btn(label, {x, y}, width = market_btn_width, disabled = game.money < f64(u.cost)) {
+			upgrade_buy(u)
+		}
+
+		y = row()
+	}
 
 	x, y = window_below_ex(book_window)
 
 	window("Control Panel", {x, y, window_full_width_ex(main_window), window_full_height_ex(y)})
 	x, y = window_inside()
-	label("Tokens Fed: 10,000", {x, y})
+	tokens_txt := display_txt_f64(game.tokens_fed)
+	if game.tokens_per_second > 0 {
+		tokens_txt = fmt.aprintf("%s (+%.2f/s)", tokens_txt, game.tokens_per_second)
+
+	}
+	label(tokens_txt, {x, y}, color = COLOR_BLUE, font_size = FONT_SIZE_LG)
 	y = row()
-	label("Money: 1,00", {x, y}, color = COLOR_GREEN)
+	label(
+		fmt.aprintf("Money: %.0f", math.floor(game.money)),
+		{x, y},
+		color = COLOR_GREEN,
+		font_size = FONT_SIZE_LG,
+	)
 	y = row()
-	label("Money: 1,00", {x, y}, color = COLOR_RED)
+	label(
+		fmt.aprintf("Earning %.2f $ per token", game.money_token_ratio),
+		{x, y},
+		color = COLOR_BLUE,
+		font_size = FONT_SIZE_LG,
+	)
 	y = row()
-	label("Money: 1,00", {x, y}, color = COLOR_BLUE)
 
 	k2.present()
+}
+
+tokens_update :: proc(dt: f32) {
+	tokens_earn := game.tokens_per_second * f64(dt)
+	game.tokens_fed += tokens_earn
+	game.money += tokens_earn * game.money_token_ratio
 }
 
 normalize :: proc(v: k2.Vec2) -> k2.Vec2 {

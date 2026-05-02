@@ -15,8 +15,10 @@ COLOR_BLACK := parse_hex_color("000000")
 COLOR_RED := parse_hex_color("800000") // used in alerts
 COLOR_GREEN := parse_hex_color("008000") // terminal-style highlight
 COLOR_BLUE := parse_hex_color("000080")
+COLOR_GRAY := parse_hex_color("808080")
 
-
+COLOR_DISABLED_TEXT := COLOR_GRAY
+COLOR_DISABLED_SHADOW := COLOR_WHITE
 COLOR_TITLEBAR_ACTIVE := COLOR_BLUE
 COLOR_TITLEBAR_INACTIVE := parse_hex_color("808080")
 
