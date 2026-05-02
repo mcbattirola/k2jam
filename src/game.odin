@@ -94,6 +94,7 @@ game_init :: proc(k2state: ^k2.State) {
 	// initial gameplay state
 	game.money = 10
 	game.money_token_ratio = MONEY_TOKEN_RATIO_INIT
+	game.book_pos = book_first_letter_index()
 	append(&game.upgrades_available, ..INIT_ENABLED_UPGRADES[:])
 }
 
@@ -139,7 +140,7 @@ game_force_reload :: proc() -> bool {
 
 @(export)
 game_force_restart :: proc() -> bool {
-	return k2.key_went_down(.T)
+	return k2.key_went_down(.F1)
 }
 
 @(export)
@@ -159,6 +160,7 @@ game_update :: proc() {
 
 	dt := k2.get_frame_time()
 
+	book_update()
 	tokens_update(dt)
 
 	// audio example
@@ -180,7 +182,8 @@ game_update :: proc() {
 	window("It Demands Data", {x, y, GAME_WIDTH, GAME_HEIGHT})
 	main_window := current_window
 	x, y = window_inside()
-	window("Book", {x, y, BOOK_WINDOW_WIDTH, BOOK_WINDOW_HEIGHT})
+	window("THE MACHINE STOPS - E M Forster", {x, y, BOOK_WINDOW_WIDTH, BOOK_WINDOW_HEIGHT})
+	book_draw()
 	x, y = window_side()
 
 	book_window := current_window
