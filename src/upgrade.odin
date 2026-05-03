@@ -4,6 +4,7 @@ import "core:fmt"
 
 UpgradeKind :: enum {
 	trainee,
+	typing_assist,
 	data_entry_worker,
 	junior_data_scientist,
 	data_leak_purchase,
@@ -13,6 +14,7 @@ UpgradeKind :: enum {
 UpgradeEnhancement :: union #no_nil {
 	UpgradeEnhancementTPS,
 	UpgradeEnhancementMoneyRatio,
+	UpgradeEnhancementTypingAssist,
 }
 
 UpgradeEnhancementTPS :: struct {
@@ -21,6 +23,10 @@ UpgradeEnhancementTPS :: struct {
 
 UpgradeEnhancementMoneyRatio :: struct {
 	amount: f64,
+}
+
+UpgradeEnhancementTypingAssist :: struct {
+	char_per_second: f32,
 }
 
 Upgrade :: struct {
@@ -32,21 +38,30 @@ Upgrade :: struct {
 	bought:              i32,
 }
 
-upgrade_name :: proc(kind: UpgradeKind) -> string {
-	switch kind {
+upgrade_name :: proc(u: Upgrade) -> string {
+	txt: string
+
+	switch u.kind {
 	case .trainee:
-		return "Trainee"
+		txt = "Trainee"
+	case .typing_assist:
+		txt = "Typing Assist"
 	case .data_entry_worker:
-		return "Data Entry Worker"
+		txt = "Data Entry Worker"
 	case .junior_data_scientist:
-		return "Junior Data Scientist"
+		txt = "Junior Data Scientist"
 	case .data_leak_purchase:
-		return "Data Leak Purchase"
+		txt = "Buy Data Leak"
 	case .internet_crawler:
-		return "Internet Crawler"
+		txt = "Internet Crawler"
 	}
 
-	return ""
+	purchased_txt: string
+	if u.one_time_buy && u.bought > 0 {
+		purchased_txt = "SOLD"
+	}
+
+	return fmt.aprintf("%s. %s", txt, purchased_txt)
 }
 
 upgrade_desc :: proc(u: Upgrade) -> string {
@@ -56,6 +71,8 @@ upgrade_desc :: proc(u: Upgrade) -> string {
 		txt = fmt.aprintf("+ %.1f TPS", s.amount)
 	case UpgradeEnhancementMoneyRatio:
 		txt = fmt.aprintf("+ %.2f$ per token", s.amount)
+	case UpgradeEnhancementTypingAssist:
+		txt = fmt.aprintf("+ %.2f automatic typing", s.char_per_second)
 	}
 
 	if u.one_time_buy {
@@ -78,6 +95,8 @@ upgrade_buy :: proc(u: ^Upgrade) {
 		game.tokens_per_second += s.amount
 	case UpgradeEnhancementMoneyRatio:
 		game.money_token_ratio += s.amount
+	case UpgradeEnhancementTypingAssist:
+		game.auto_type_per_second += s.char_per_second
 	}
 
 	fmt.printfln(
@@ -94,10 +113,10 @@ upgrade_buy :: proc(u: ^Upgrade) {
 
 UPGRADE_TRAINEE := Upgrade {
 	kind = .trainee,
-	enhancement = UpgradeEnhancementTPS{amount = .5},
+	enhancement = UpgradeEnhancementTPS{amount = .3},
 	one_time_buy = false,
 	cost = 10,
-	cost_increase_ratio = 1,
+	cost_increase_ratio = 3,
 }
 
 UPGRADE_DATA_ENTRY_WORKER := Upgrade {
@@ -105,20 +124,29 @@ UPGRADE_DATA_ENTRY_WORKER := Upgrade {
 	enhancement = UpgradeEnhancementTPS{amount = 1.5},
 	one_time_buy = false,
 	cost = 50,
-	cost_increase_ratio = 5,
+	cost_increase_ratio = 8,
 }
 
 UPGRADE_JUNIOR_DATA_SCIENTIST := Upgrade {
 	kind = .junior_data_scientist,
-	enhancement = UpgradeEnhancementMoneyRatio{amount = .1},
+	enhancement = UpgradeEnhancementMoneyRatio{amount = .25},
 	one_time_buy = false,
-	cost = 250,
+	cost = 200,
 	cost_increase_ratio = 25,
 }
 
+UPGRADE_TYPING_ASSIST := Upgrade {
+	kind = .typing_assist,
+	enhancement = UpgradeEnhancementTypingAssist{char_per_second = 8},
+	one_time_buy = false,
+	cost = 1000,
+	cost_increase_ratio = 500,
+}
+
+
 UPGRADE_DATA_LEAK_PURCHASE := Upgrade {
 	kind = .data_leak_purchase,
-	enhancement = UpgradeEnhancementMoneyRatio{amount = 0.75},
+	enhancement = UpgradeEnhancementMoneyRatio{amount = 1.25},
 	one_time_buy = true,
 	cost = 2000,
 }
@@ -134,6 +162,7 @@ UPGRADE_INTERNET_CRAWLER := Upgrade {
 INIT_ENABLED_UPGRADES := []Upgrade {
 	UPGRADE_TRAINEE,
 	UPGRADE_DATA_ENTRY_WORKER,
+	UPGRADE_TYPING_ASSIST,
 	UPGRADE_JUNIOR_DATA_SCIENTIST,
 	UPGRADE_INTERNET_CRAWLER,
 	UPGRADE_DATA_LEAK_PURCHASE,

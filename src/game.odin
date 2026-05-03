@@ -11,30 +11,32 @@ import vmem `core:mem/virtual`
 BOOK :: #load("../assets/book.txt")
 
 Game :: struct {
-	arena:              vmem.Arena,
-	arena_buffer:       []u8,
-	allocator:          runtime.Allocator,
-	frame_arena:        vmem.Arena,
-	frame_allocator:    runtime.Allocator,
-	terminate:          bool,
+	arena:                vmem.Arena,
+	arena_buffer:         []u8,
+	allocator:            runtime.Allocator,
+	frame_arena:          vmem.Arena,
+	frame_allocator:      runtime.Allocator,
+	terminate:            bool,
 	// audio
-	audio_enabled:      bool,
-	audio_buffer:       k2.Audio_Buffer,
-	audio:              k2.Sound,
+	audio_enabled:        bool,
+	audio_buffer:         k2.Audio_Buffer,
+	audio:                k2.Sound,
 	// text
-	font_handle:        k2.Font,
-	font_bold:          k2.Font,
+	font_handle:          k2.Font,
+	font_bold:            k2.Font,
 	// gameplay stuff
-	tokens_fed:         f64,
-	tokens_per_second:  f64,
-	money:              f64,
-	money_token_ratio:  f64,
-	book_pos:           u64,
-	book_chars_typed:   i32,
-	book_scroll:        f32,
-	market_scroll:      f32,
-	market_scroll_max:  f32,
-	upgrades_available: [dynamic; 20]Upgrade,
+	tokens_fed:           f64,
+	tokens_per_second:    f64,
+	money:                f64,
+	money_token_ratio:    f64,
+	book_pos:             u64,
+	book_chars_typed:     i32,
+	book_scroll:          f32,
+	market_scroll:        f32,
+	market_scroll_max:    f32,
+	upgrades_available:   [dynamic; 20]Upgrade,
+	auto_type_counter:    f32,
+	auto_type_per_second: f32,
 }
 
 // global game instance
@@ -44,6 +46,7 @@ GAME_WIDTH :: 800
 GAME_HEIGHT :: 600
 
 MONEY_TOKEN_RATIO_INIT :: 1
+TOKEN_PER_CHAR :: .77
 
 @(export)
 game_init :: proc(k2state: ^k2.State) {
@@ -158,6 +161,7 @@ game_update :: proc() {
 
 	dt := k2.get_frame_time()
 
+	game.auto_type_counter += game.auto_type_per_second * dt
 	book_update()
 	tokens_update(dt)
 
@@ -206,7 +210,7 @@ game_update :: proc() {
 
 	for i in 0 ..< len(game.upgrades_available) {
 		u := &game.upgrades_available[i]
-		btn_label := fmt.tprintf("$%d - %s", u.cost, upgrade_name(u.kind))
+		btn_label := fmt.tprintf("$%d - %s", u.cost, upgrade_name(u^))
 		disabled := game.money < f64(u.cost) || (u.bought > 0 && u.one_time_buy)
 		if btn(btn_label, {x, y}, width = market_btn_width, disabled = disabled) {
 			upgrade_buy(u)
@@ -249,7 +253,7 @@ game_update :: proc() {
 	label(tokens_txt, {x, y}, font_size = FONT_SIZE_LG)
 	y = row()
 	label(
-		fmt.aprintf("Money: %.0f", math.floor(game.money)),
+		fmt.aprintf("Money: %s$", display_txt_f64(game.money)),
 		{x, y},
 		color = COLOR_GREEN,
 		font_size = FONT_SIZE_LG,
@@ -270,6 +274,11 @@ tokens_update :: proc(dt: f32) {
 	tokens_earn := game.tokens_per_second * f64(dt)
 	game.tokens_fed += tokens_earn
 	game.money += tokens_earn * game.money_token_ratio
+}
+
+tokens_grant :: proc(amount: f64) {
+	game.tokens_fed += amount
+	game.money += amount * game.money_token_ratio
 }
 
 normalize :: proc(v: k2.Vec2) -> k2.Vec2 {

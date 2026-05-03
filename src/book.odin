@@ -30,17 +30,39 @@ book_update :: proc() {
 	highlighted_char := book[game.book_pos]
 	highlighted_key := book_char_to_key(highlighted_char)
 	if highlighted_key != .None && k2.key_went_down(highlighted_key) {
-		game.book_pos += 1
-		game.book_pos, _ = book_next_typable_index(game.book_pos)
-		game.book_chars_typed += 1
-
-		// word ended
-		if highlighted_char == ' ' {
-			grant := f64(game.book_chars_typed) * 0.75
-			game.tokens_fed += grant
-			game.book_chars_typed = 0
-		}
+		book_progress()
 	}
+
+	for game.auto_type_counter > 1 {
+		if !book_progress() {
+			game.auto_type_counter = 0
+			break
+		}
+		game.auto_type_counter -= 1
+	}
+
+}
+
+book_progress :: proc() -> bool {
+	game.book_pos += 1
+	pos, ok := book_next_typable_index(game.book_pos)
+	game.book_pos = pos
+	if !ok {
+		return false
+	}
+	game.book_chars_typed += 1
+
+
+	book := BOOK
+	highlighted_char := book[game.book_pos]
+	// word ended, grant reward
+	if highlighted_char == ' ' {
+		grant := f64(game.book_chars_typed) * TOKEN_PER_CHAR
+		tokens_grant(grant)
+		game.book_chars_typed = 0
+	}
+
+	return true
 }
 
 book_char_to_key :: proc(c: u8) -> k2.Keyboard_Key {
