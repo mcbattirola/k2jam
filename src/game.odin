@@ -4,7 +4,6 @@ import "base:runtime"
 import "core:fmt"
 import "core:math"
 import "core:math/linalg"
-import "core:os"
 import k2 "karl2d"
 import vmem `core:mem/virtual`
 
@@ -65,8 +64,7 @@ game_init :: proc(k2state: ^k2.State) {
 	// create game inside arena
 	g, err := new(Game, allocator = arena_allocator)
 	if err != nil {
-		fmt.printfln("error creating game : %s", err)
-		os.exit(1)
+		panic(fmt.tprintf("error creating game : %s", err))
 	}
 	game = g
 
@@ -77,8 +75,7 @@ game_init :: proc(k2state: ^k2.State) {
 
 	// frame arena, cleaned up every frame
 	if err := vmem.arena_init_growing(&game.frame_arena); err != nil {
-		fmt.printfln("error starting frame arena: %d", err)
-		os.exit(1)
+		panic(fmt.tprintf("error starting frame arena: %d", err))
 	}
 	frame_allocator := vmem.arena_allocator(&game.frame_arena)
 	game.frame_allocator = frame_allocator
@@ -224,7 +221,7 @@ game_update :: proc() {
 			button := last_el
 			qty_x := button.x + button.w + ROW_SPACE
 			qty_y := button.y + BUTTON_PADDING.y
-			label(fmt.aprintf("%d", u.bought), {qty_x, qty_y})
+			label(fmt.tprintf("%d", u.bought), {qty_x, qty_y})
 			last_el = button
 		}
 
@@ -238,29 +235,30 @@ game_update :: proc() {
 
 	x, y = window_below()
 	if any_hovered_upgrade {
-		label(fmt.aprintf("INFO: %s", upgrade_desc(hovered_upgrade)), {x, y})
+		label(fmt.tprintf("INFO: %s", upgrade_desc(hovered_upgrade)), {x, y})
 	}
 
 	x, y = window_below_ex(book_window)
 
 	window("Control Panel", {x, y, window_full_width_ex(main_window), window_full_height_ex(y)})
 	x, y = window_inside()
-	tokens_txt := display_txt_f64(game.tokens_fed)
+	tokens_value_txt := display_txt_f64(game.tokens_fed)
+	tokens_txt := fmt.tprintf("Tokens Fed: %s", tokens_value_txt)
 	if game.tokens_per_second > 0 {
-		tokens_txt = fmt.aprintf("Tokens Fed: %s (+%.2f/s)", tokens_txt, game.tokens_per_second)
+		tokens_txt = fmt.tprintf("%s (+%.2f/s)", tokens_txt, game.tokens_per_second)
 
 	}
 	label(tokens_txt, {x, y}, font_size = FONT_SIZE_LG)
 	y = row()
 	label(
-		fmt.aprintf("Money: %s$", display_txt_f64(game.money)),
+		fmt.tprintf("Money: %s$", display_txt_f64(game.money)),
 		{x, y},
 		color = COLOR_GREEN,
 		font_size = FONT_SIZE_LG,
 	)
 	y = row()
 	label(
-		fmt.aprintf("Earning %.2f $ per token", game.money_token_ratio),
+		fmt.tprintf("Earning %.2f $ per token", game.money_token_ratio),
 		{x, y},
 		color = COLOR_BLUE,
 		font_size = FONT_SIZE_LG,
@@ -268,7 +266,7 @@ game_update :: proc() {
 	y = row()
 	if game.auto_type_per_second > 0 {
 		label(
-			fmt.aprintf("Auto typing: %.2f chars/s", game.auto_type_per_second),
+			fmt.tprintf("Auto typing: %.2f chars/s", game.auto_type_per_second),
 			{x, y},
 			font_size = FONT_SIZE_LG,
 		)
@@ -276,6 +274,7 @@ game_update :: proc() {
 	}
 
 	k2.present()
+	free_all(context.temp_allocator)
 }
 
 tokens_update :: proc(dt: f32) {

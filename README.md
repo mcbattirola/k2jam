@@ -5,13 +5,11 @@ An incremental game where you type to feed an AI tokens.
 As you get money, you can buy stuff like auto-complete, internet crawlers,
 and eventually startups to feed doomscrolllers data into the machine.
 
-
 ## Gameplay
 
 Exactly like Cookie Clicker, except instead of clicking a cookie, you see
 the words of a book. You type to feed the machine, but eventually you
 automate everything.
-
 
 ## TODO
 
@@ -21,15 +19,18 @@ automate everything.
 - [x] Shop
 - [x] Book writing system
 - [x] Enable new upgrades as we go
-- [ ] Web build
+- [x] Web build
+  - [x] build script
+  - [x] upload
+- [ ] Player onboarding
+  - [ ] Floating tip to tech how to type.
+  - [ ] Floating tip when the player gets money to teach how to buy from market.
 - [ ] Singularity -- do or show something interesting.
 - [ ] Add email or news (RSS feed?)
-    - [ ] As we enable upgrades, lets show news of our actions in the world.
+  - [ ] As we enable upgrades, lets show news of our actions in the world.
 - [ ] Improve aesthethics
 
-
-_____
-
+---
 
 Hot reload template readme below:
 
@@ -63,4 +64,3 @@ Usual loop should be:
 ## Credits
 
 This is heavily inspired by [Odin + Raylib + Hot Reload template](https://github.com/karl-zylinski/odin-raylib-hot-reload-game-template).
-

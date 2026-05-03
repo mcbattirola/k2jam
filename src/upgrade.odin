@@ -100,7 +100,11 @@ upgrade_name :: proc(u: Upgrade) -> string {
 		purchased_txt = "SOLD"
 	}
 
-	return fmt.aprintf("%s. %s", txt, purchased_txt)
+	if purchased_txt != "" {
+		return fmt.tprintf("%s. %s", txt, purchased_txt)
+	}
+
+	return txt
 }
 
 upgrade_desc :: proc(u: Upgrade) -> string {
@@ -111,33 +115,33 @@ upgrade_desc :: proc(u: Upgrade) -> string {
 	txt: string
 	switch s in u.enhancement {
 	case UpgradeEnhancementTPS:
-		txt = fmt.aprintf("+ %.1f TPS", s.amount)
+		txt = fmt.tprintf("+ %.1f TPS", s.amount)
 	case UpgradeEnhancementMoneyRatio:
-		txt = fmt.aprintf("+ %.2f$ per token", s.amount)
+		txt = fmt.tprintf("+ %.2f$ per token", s.amount)
 	case UpgradeEnhancementTypingAssist:
-		txt = fmt.aprintf("+ %.2f automatic typing", s.char_per_second)
+		txt = fmt.tprintf("+ %.2f automatic typing", s.char_per_second)
 	}
 
 	// additional text
 	if u.kind == .physical_office {
-		txt = fmt.aprintf("%s. Enables new upgrades.", txt)
+		txt = fmt.tprintf("%s. Enables new upgrades.", txt)
 	}
 	if u.kind == .launch_social_media {
-		txt = fmt.aprintf("%s. Enables growth upgrades.", txt)
+		txt = fmt.tprintf("%s. Enables growth upgrades.", txt)
 	}
 	if u.kind == .government_contract {
-		txt = fmt.aprintf("%s. Enables drone upgrades.", txt)
+		txt = fmt.tprintf("%s. Enables drone upgrades.", txt)
 	}
 	if u.kind == .deploy_military_drones {
-		txt = fmt.aprintf("%s. Enables neural implant program.", txt)
+		txt = fmt.tprintf("%s. Enables neural implant program.", txt)
 	}
 	if u.kind == .neural_implant_program {
-		txt = fmt.aprintf("%s. Enables neural data upgrades.", txt)
+		txt = fmt.tprintf("%s. Enables neural data upgrades.", txt)
 	}
 
 
 	if u.one_time_buy {
-		txt = fmt.aprintf("%s. One time buy.", txt)
+		txt = fmt.tprintf("%s. One time buy.", txt)
 	}
 
 	return txt
