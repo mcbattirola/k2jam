@@ -208,8 +208,6 @@ upgrade_buy :: proc(u: ^Upgrade) {
 
 		if u.kind == .final_singularity {
 			game.singularity = true
-			game.tokens_per_second = 0
-			game.money_token_ratio = 0
 		}
 	}
 }
