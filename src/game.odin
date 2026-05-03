@@ -198,7 +198,7 @@ game_update :: proc() {
 		"Market",
 		{x, y, GAME_WIDTH - BOOK_WINDOW_WIDTH - (WINDOWS_SPACING * 3), MARKET_WINDOW_HEIGHT},
 	)
-	market_btn_width: f32 = 256
+	market_btn_width: f32 = 300
 	x, y = window_inside()
 
 	// market window scroll
