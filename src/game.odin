@@ -93,7 +93,7 @@ game_init :: proc(k2state: ^k2.State) {
 	game.font_bold = k2.load_font_from_bytes(#load("../assets/MS-Sans-Serif-Bold.ttf"))
 
 	// initial gameplay state
-	game.money = 10
+	game.money = 0
 	game.money_token_ratio = MONEY_TOKEN_RATIO_INIT
 	game.book_pos = book_first_letter_index()
 	append(&game.upgrades_available, ..INIT_ENABLED_UPGRADES[:])
@@ -266,6 +266,14 @@ game_update :: proc() {
 		font_size = FONT_SIZE_LG,
 	)
 	y = row()
+	if game.auto_type_per_second > 0 {
+		label(
+			fmt.aprintf("Auto typing: %.2f chars/s", game.auto_type_per_second),
+			{x, y},
+			font_size = FONT_SIZE_LG,
+		)
+		y = row()
+	}
 
 	k2.present()
 }

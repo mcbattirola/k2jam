@@ -19,8 +19,13 @@ automate everything.
 - [x] Build the UI
 - [x] Token system
 - [x] Shop
-- [ ] Book writing system
-- [ ] Enable new upgrades as we go
+- [x] Book writing system
+- [x] Enable new upgrades as we go
+- [ ] Web build
+- [ ] Singularity -- do or show something interesting.
+- [ ] Add email or news (RSS feed?)
+    - [ ] As we enable upgrades, lets show news of our actions in the world.
+- [ ] Improve aesthethics
 
 
 _____
