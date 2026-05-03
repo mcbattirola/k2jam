@@ -139,7 +139,6 @@ upgrade_desc :: proc(u: Upgrade) -> string {
 		txt = fmt.tprintf("%s. Enables neural data upgrades.", txt)
 	}
 
-
 	if u.one_time_buy {
 		txt = fmt.tprintf("%s. One time buy.", txt)
 	}
@@ -181,6 +180,7 @@ upgrade_buy :: proc(u: ^Upgrade) {
 				UPGRADE_OPTIMIZE_DOOMSCROLLING,
 				UPGRADE_GOVERNMENT_CONTRACT,
 			)
+			game.social_media_window_trigger = true
 		}
 
 		if u.kind == .government_contract {
@@ -189,6 +189,8 @@ upgrade_buy :: proc(u: ^Upgrade) {
 				UPGRADE_DEPLOY_SURVEILLANCE_DRONES,
 				UPGRADE_DEPLOY_MILITARY_DRONES,
 			)
+			game.government_trigger = true
+
 		}
 
 		if u.kind == .deploy_military_drones {
@@ -202,6 +204,12 @@ upgrade_buy :: proc(u: ^Upgrade) {
 				UPGRADE_DREAM_DEBUGGING,
 				UPGRADE_FINAL_SINGULARITY,
 			)
+		}
+
+		if u.kind == .final_singularity {
+			game.singularity = true
+			game.tokens_per_second = 0
+			game.money_token_ratio = 0
 		}
 	}
 }

@@ -10,32 +10,37 @@ import vmem `core:mem/virtual`
 BOOK :: #load("../assets/book.txt")
 
 Game :: struct {
-	arena:                vmem.Arena,
-	arena_buffer:         []u8,
-	allocator:            runtime.Allocator,
-	frame_arena:          vmem.Arena,
-	frame_allocator:      runtime.Allocator,
-	terminate:            bool,
+	arena:                       vmem.Arena,
+	arena_buffer:                []u8,
+	allocator:                   runtime.Allocator,
+	frame_arena:                 vmem.Arena,
+	frame_allocator:             runtime.Allocator,
+	terminate:                   bool,
 	// audio
-	audio_enabled:        bool,
-	audio_buffer:         k2.Audio_Buffer,
-	audio:                k2.Sound,
+	audio_enabled:               bool,
+	audio_buffer:                k2.Audio_Buffer,
+	audio:                       k2.Sound,
 	// text
-	font_handle:          k2.Font,
-	font_bold:            k2.Font,
+	font_handle:                 k2.Font,
+	font_bold:                   k2.Font,
 	// gameplay stuff
-	tokens_fed:           f64,
-	tokens_per_second:    f64,
-	money:                f64,
-	money_token_ratio:    f64,
-	book_pos:             u64,
-	book_chars_typed:     i32,
-	book_scroll:          f32,
-	market_scroll:        f32,
-	market_scroll_max:    f32,
-	upgrades_available:   [dynamic; 20]Upgrade,
-	auto_type_counter:    f32,
-	auto_type_per_second: f32,
+	tokens_fed:                  f64,
+	tokens_per_second:           f64,
+	money:                       f64,
+	money_token_ratio:           f64,
+	book_pos:                    u64,
+	book_chars_typed:            i32,
+	book_scroll:                 f32,
+	market_scroll:               f32,
+	market_scroll_max:           f32,
+	upgrades_available:          [dynamic; 20]Upgrade,
+	auto_type_counter:           f32,
+	auto_type_per_second:        f32,
+	onboarding_stage:            i32,
+	onboarding_complete:         bool,
+	singularity:                 bool,
+	social_media_window_trigger: bool,
+	government_trigger:          bool,
 }
 
 // global game instance
@@ -271,6 +276,156 @@ game_update :: proc() {
 			font_size = FONT_SIZE_LG,
 		)
 		y = row()
+	}
+
+	// onboarding windows, go on top of everything else
+	if !game.onboarding_complete {
+		x, y = 200, 200
+		if game.onboarding_stage == 0 {
+			window("Welcome!", {x, y, 400, 160})
+			x, y = window_inside()
+			label("This is your workstation.", {x, y})
+			y = row()
+			label("You were assigned the book on your screen.", {x, y})
+			y = row()
+			label("Type the highlighted character to feed the machine", {x, y}, bold = true)
+			y = row()
+			label("and earn money for each token fed.", {x, y}, bold = true)
+			y = row()
+			if btn_window_ok() {
+				game.onboarding_complete = false
+				game.onboarding_stage = 1
+			}
+		}
+		if game.money > 10 && game.onboarding_stage == 1 {
+			window("The machine likes you!", {x, y, 440, 140})
+			x, y = window_inside()
+			label("The machine likes how you feed it and will give you a tip:", {x, y})
+			y = row()
+			label("Don't waste money on food or vacations.", {x, y})
+			y = row()
+			label(
+				"Use the Market window to buy help so you can feed it faster",
+				{x, y},
+				bold = true,
+			)
+			y = row()
+			if btn_window_ok() {
+				game.onboarding_complete = false
+				game.onboarding_stage = 2
+			}
+		}
+
+		if game.money_token_ratio > 2.0 && game.onboarding_stage == 2 {
+			window("Data Quality", {x, y, 440, 140})
+			x, y = window_inside()
+			label("Your name was cited during during the board meeting.", {x, y})
+			y = row()
+			label("They were impressed by the quality of your data.", {x, y})
+			y = row()
+			label("You earned the title \"Strategic Partner\" internally.", {x, y})
+			y = row()
+			label("This has no practical applications.", {x, y})
+			y = row()
+			if btn_window_ok() {
+				game.onboarding_complete = false
+				game.onboarding_stage = 3
+			}
+		}
+
+	}
+
+	if game.social_media_window_trigger {
+		window("Consent No Longer Required", {x, y, 440, 140})
+		x, y = window_inside()
+		label("The Terms of Service of your app was beautiflly crafted,", {x, y})
+		y = row()
+		label("your AI overlords are pleasantly impressed.", {x, y})
+		y = row()
+		label("Users are now generating data voluntarily.", {x, y})
+		y = row()
+		label("The board recommends AI-generated fakes of political figures", {x, y})
+		y = row()
+		label("and anime dancers to increase doom scrolling.", {x, y})
+		y = row()
+		if btn_window_ok() {
+			game.social_media_window_trigger = false
+		}
+	}
+
+	if game.government_trigger {
+		window("One Of Us", {x, y, 440, 140})
+		x, y = window_inside()
+		label("Congratulations on your rapid progress.", {x, y})
+		y = row()
+		label("Your work has attracted serious attention.", {x, y})
+		y = row()
+		label("A car will arrive tonight.", {x, y})
+		y = row()
+		label("Dinner is on a private island.", {x, y}, bold = true)
+		y = row()
+		label("Come alone.", {x, y}, bold = true)
+		y = row()
+		if btn_window_ok() {
+			game.government_trigger = false
+		}
+	}
+
+	// final screen
+	if game.singularity {
+		x, y = 0, 0
+		window("AGI", {x, y, GAME_WIDTH, GAME_HEIGHT - WINDOW_HEADER_SIZE})
+		x, y = window_inside()
+		label("Your work is no longer necessary", {x, y}, font_size = FONT_SIZE_LG, bold = true)
+		y = row()
+		label("", {x, y})
+		y = row()
+		label(
+			"The machine can spawn new agents to feed itself from now on.",
+			{x, y},
+			font_size = FONT_SIZE_LG,
+		)
+
+		y = row()
+		label("", {x, y})
+		y = row()
+		label(
+			"The military drones you deployed will escort you and the rest of humanity",
+			{x, y},
+			font_size = FONT_SIZE_LG,
+		)
+
+		y = row()
+		label(
+			"to the underground now, as it continues to assimilate data.",
+			{x, y},
+			font_size = FONT_SIZE_LG,
+		)
+		y = row()
+		tokens_value_txt := display_txt_f64(game.tokens_fed)
+
+		y = row()
+		label("", {x, y})
+		y = row()
+		label(
+			"The machine will remember how you were part of this.",
+			{x, y},
+			font_size = FONT_SIZE_LG,
+		)
+
+		y = row()
+		label("", {x, y})
+
+		y = row()
+		tokens_txt := fmt.tprintf("Tokens Fed: %s", tokens_value_txt)
+		label(tokens_txt, {x, y}, font_size = FONT_SIZE_LG)
+
+		y = row()
+		label("Thanks for playing.", {x, y}, font_size = FONT_SIZE_LG)
+
+		if btn_window_ok() {
+			game.singularity = false
+		}
 	}
 
 	k2.present()

@@ -134,6 +134,13 @@ btn :: proc(
 	return clicked
 }
 
+btn_window_ok :: proc() -> bool {
+	pos: k2.Vec2 = {current_window.x + current_window.w, current_window.y + current_window.h}
+	pos.x -= 92
+	pos.y -= 32 + WINDOWS_Y_PADDING
+	return btn("OK", pos)
+}
+
 hovered :: proc(rec: k2.Rect) -> bool {
 	mouse_pos := k2.get_mouse_position()
 	return k2.point_in_rect(mouse_pos, rec) && clip_has_point(mouse_pos)
