@@ -143,6 +143,8 @@ book_draw :: proc() {
 			}
 			k2.draw_rect(highlight, COLOR_BLUE)
 			k2.draw_text(ch, pos, BOOK_FONT_SIZE, COLOR_WHITE, game.font_handle)
+		} else if i > highlight_idx {
+			k2.draw_text(ch, pos, BOOK_FONT_SIZE, COLOR_GRAY, game.font_handle)
 		} else {
 			k2.draw_text(ch, pos, BOOK_FONT_SIZE, COLOR_BLACK, game.font_handle)
 		}
